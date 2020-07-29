@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "start": "npm run dev",
-    "dev": "browser-sync start --server --files '*.html, css/*.css, js/*.js"
+    "dev": "browser-sync start --server --files \"*.html, css/*.css, js/*.js\""
   },
   "dependencies": {
     "todomvc-app-css": "^2.0.0",

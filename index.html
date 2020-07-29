@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
@@ -9,49 +9,55 @@
 		<!-- CSS overrides - remove if you don't need it -->
 		<link rel="stylesheet" href="css/app.css">
 		<script src="./node_modules/vue/dist/vue.js"></script>
+		<style>
+			[v-cloak]{
+				display: none
+			}
+		</style>
 	</head>
 	<body>
-		<section class="todoapp" id="app">
+		<section class="todoapp" id="app" v-cloak>
 			<header class="header">
 				<h1>todos</h1>
-				<input class="new-todo" placeholder="What needs to be done?" autofocus @keydown.enter="addTodo" >
+				<input class="new-todo" placeholder="What needs to be done?" v-first-focus @keydown.enter="addTodo" @blur="addTodo" >
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
 			<template v-if="todos.length">
 				<section class="main">
-				<input id="toggle-all" class="toggle-all" type="checkbox" @change="handleToggleAll">
+				<!-- <input id="toggle-all" class="toggle-all" type="checkbox" @change="handleToggleAll"> -->
+				<input id="toggle-all" class="toggle-all" type="checkbox" v-model="toggleAllStat">
 				<label for="toggle-all">Mark all as complete</label>
 				<ul class="todo-list" >
 					<!-- These are here just to show the structure of the list items -->
 					<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
-					<li :class="{completed:item.completed,editing:currentEditing===item.id}" v-for="(item,index) in todos">
+					<li :class="{completed:item.completed,editing:currentEditing===item.id}" v-for="(item,index) in hashTodos">
 						<div class="view">
 							<input class="toggle" type="checkbox" v-model="item.completed">
 							<label @dblclick="handleDblclick(item)" @click="item.completed=!item.completed" >{{item.title}}</label>
 							<button class="destroy" @click="handleRemoveTodo(index)"></button>
 						</div>
-						<input class="edit" :value="item.title" @keydown.enter="handleSaveEdit($event,index)" @keydown.esc="currentEditing=null"> 
+						<input class="edit" v-edit-focus="currentEditing===item.id" :value="item.title" @keydown.enter="handleSaveEdit($event,index)" @blur="handleSaveEdit($event,index)" @keydown.esc="currentEditing=null"> 
 					</li>
 				</ul>
 				</section>
 			<!-- This footer should hidden by default and shown when there are todos -->
 				<footer class="footer">
 				<!-- This should be `0 items left` by default -->
-				<span class="todo-count"><strong>0</strong> item left</span>
+				<span class="todo-count"><strong>{{remainingCount}}</strong>/<strong>{{todos.length}}</strong> item left</span>
 				<!-- Remove this if you don't implement routing -->
 				<ul class="filters">
 					<li>
-						<a class="selected" href="#/">All</a>
+						<a :class="{selected:currentHash===''}" href="#/">All</a>
 					</li>
 					<li>
-						<a href="#/active">Active</a>
+						<a :class="{selected:currentHash==='active'}" href="#/active">Active</a>
 					</li>
 					<li>
-						<a href="#/completed">Completed</a>
+						<a :class="{selected:currentHash==='completed'}" href="#/completed">Completed</a>
 					</li>
 				</ul>
 				<!-- Hidden if no completed items are left ↓ -->
-				<button class="clear-completed">Clear completed</button>
+				<button class="clear-completed" v-show="todos.some(item=>item.completed)" @click="todos=todos.filter(item=>!item.completed)">Clear completed</button>
 				</footer>
 			</template>
 		</section>
